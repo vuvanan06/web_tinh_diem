@@ -379,6 +379,38 @@ function drawChart() {
     });
 }
 
+// function calculateTargetGPA() {
+//     let targetGPA = parseFloat(document.getElementById("target-gpa").value);
+//     let remainingSubjects = parseInt(document.getElementById("remaining-subjects").value);
+//     let resultRows = document.querySelectorAll("#result-body tr");
+//     let viewAll = document.getElementById("view-all-semesters").checked;
+//     let semester = document.getElementById("semester-select").value;
+//     let totalWeightedScore4 = 0;
+//     let totalCredits = 0;
+
+//     resultRows.forEach(row => {
+//         if (viewAll || row.dataset.semester === semester) {
+//             let score4 = parseFloat(row.cells[6].textContent);
+//             let credits = parseInt(row.cells[4].textContent);
+//             totalWeightedScore4 += score4 * credits;
+//             totalCredits += credits;
+//         }
+//     });
+
+//     if (isNaN(targetGPA) || isNaN(remainingSubjects) || targetGPA < 0 || targetGPA > 4 || remainingSubjects < 1) {
+//         document.getElementById("target-result").innerHTML = "Vui lòng nhập mục tiêu GPA (0-4) và số môn còn lại hợp lệ!";
+//         return;
+//     }
+
+//     let totalCreditsWithRemaining = totalCredits + remainingSubjects;
+//     let requiredTotalScore = targetGPA * totalCreditsWithRemaining;
+//     let requiredRemainingScore = requiredTotalScore - totalWeightedScore4;
+//     let avgScorePerSubject = (requiredRemainingScore / remainingSubjects).toFixed(2);
+
+//     document.getElementById("target-result").innerHTML = `
+//         Để đạt GPA ${targetGPA}, bạn cần đạt trung bình ${avgScorePerSubject} (hệ 4) cho ${remainingSubjects} môn còn lại.
+//     `;
+// }
 function calculateTargetGPA() {
     let targetGPA = parseFloat(document.getElementById("target-gpa").value);
     let remainingSubjects = parseInt(document.getElementById("remaining-subjects").value);
@@ -388,29 +420,47 @@ function calculateTargetGPA() {
     let totalWeightedScore4 = 0;
     let totalCredits = 0;
 
+    // Kiểm tra đầu vào hợp lệ
+    if (isNaN(targetGPA) || isNaN(remainingSubjects) || targetGPA < 0 || targetGPA > 4 || remainingSubjects < 1) {
+        document.getElementById("target-result").innerHTML = 
+            "Vui lòng nhập mục tiêu GPA (0-4) và số môn còn lại hợp lệ!";
+        return;
+    }
+
     resultRows.forEach(row => {
         if (viewAll || row.dataset.semester === semester) {
             let score4 = parseFloat(row.cells[6].textContent);
             let credits = parseInt(row.cells[4].textContent);
-            totalWeightedScore4 += score4 * credits;
-            totalCredits += credits;
+            if (!isNaN(score4) && !isNaN(credits)) {
+                totalWeightedScore4 += score4 * credits;
+                totalCredits += credits;
+            }
         }
     });
-
-    if (isNaN(targetGPA) || isNaN(remainingSubjects) || targetGPA < 0 || targetGPA > 4 || remainingSubjects < 1) {
-        document.getElementById("target-result").innerHTML = "Vui lòng nhập mục tiêu GPA (0-4) và số môn còn lại hợp lệ!";
-        return;
-    }
 
     let totalCreditsWithRemaining = totalCredits + remainingSubjects;
     let requiredTotalScore = targetGPA * totalCreditsWithRemaining;
     let requiredRemainingScore = requiredTotalScore - totalWeightedScore4;
     let avgScorePerSubject = (requiredRemainingScore / remainingSubjects).toFixed(2);
 
-    document.getElementById("target-result").innerHTML = `
-        Để đạt GPA ${targetGPA}, bạn cần đạt trung bình ${avgScorePerSubject} (hệ 10) cho ${remainingSubjects} môn còn lại.
-    `;
+    // Cảnh báo nếu mục tiêu không thể đạt được
+    if (avgScorePerSubject > 4.0) {
+        document.getElementById("target-result").innerHTML = `
+            Mục tiêu GPA ${targetGPA} không khả thi! Bạn cần đạt trung bình ${avgScorePerSubject} (hệ 4),
+            cao hơn mức tối đa là 4.0.
+        `;
+    } else if (avgScorePerSubject < 0) {
+        document.getElementById("target-result").innerHTML = `
+            Bạn đã đạt được mục tiêu hoặc vượt quá mức cần thiết.
+        `;
+    } else {
+        document.getElementById("target-result").innerHTML = `
+            Để đạt GPA ${targetGPA}, bạn cần đạt trung bình ${avgScorePerSubject} (hệ 4) 
+            cho ${remainingSubjects} môn còn lại.
+        `;
+    }
 }
+
 
 function suggestImprovement() {
     let resultRows = document.querySelectorAll("#result-body tr");
@@ -445,9 +495,10 @@ function suggestImprovement() {
     `;
 }
 
-function checkEmptyInputs() {
-    let subjectsTable = document.getElementById("subjects-table");
-    if (subjectsTable.rows.length === 0) {
-        alert("Bạn chưa nhập môn học nào trong kỳ hiện tại!");
-    }
-}
+
+// function checkEmptyInputs() {
+//     let subjectsTable = document.getElementById("subjects-table");
+//     if (subjectsTable.rows.length === 0) {
+//         alert("Bạn chưa nhập môn học nào trong kỳ hiện tại!");
+//     }
+// }
