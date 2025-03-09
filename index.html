@@ -3,30 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Tính Điểm Học Tập</title>
+    <meta name="description" content="Web tính điểm học tập, giúp bạn quản lý và tính toán điểm GPA dễ dàng.">
+    <title>WEB TÍNH ĐIỂM HỌC TẬP ANCRIS</title>
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="style/style.css">
+
+    <!-- Thư viện JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1 style="color: rgb(128, 0, 255);">Web Tính Điểm Học Tập An Cris</h1>
-        <p class="welcome-message">Chào mừng bạn đã đến với hệ thống tính điểm của chúng tôi!</p>
+    
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <h1>Web Tính Điểm Học Tập An Cris</h1>
+            <p class="welcome-message">Chào mừng bạn đã đến với hệ thống tính điểm của chúng tôi!</p>
+            <nav>
+                <ul>
+                    <li><a href="#subjects-table">Nhập điểm</a></li>
+                    <li><a href="#result-table">Kết quả</a></li>
+                    <li><a href="#gpa-display">GPA</a></li>
+                    <li><a href="#gradeChart">Thống kê</a></li>
+                    <li><a href="#target-gpa">Mục tiêu GPA</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-        <!-- Chọn kỳ học và chế độ xem -->
-        <div style="margin-bottom: 20px;">
+    <div class="container">
+        <!-- Chọn kỳ học -->
+        <div class="filter-section">
             <label for="semester-select">Chọn kỳ học: </label>
             <select id="semester-select">
                 <option value="Ky1">Kỳ 1</option>
                 <option value="Ky2">Kỳ 2</option>
                 <option value="He">Hè</option>
             </select>
-            <label style="margin-left: 20px;">Xem tất cả kỳ: </label>
+            <label>Xem tất cả kỳ: </label>
             <input type="checkbox" id="view-all-semesters">
         </div>
 
-        <!-- Bảng nhập điểm -->
+        <!-- Nhập điểm -->
         <h2>Nhập điểm môn học</h2>
         <table>
             <thead>
@@ -44,17 +64,12 @@
             </thead>
             <tbody id="subjects-table"></tbody>
         </table>
-        
-        <div style="margin-top: 10px;">
-            <button id="add-subject">Thêm môn học</button>
-        </div>
+        <button id="add-subject">Thêm môn học</button>
 
         <!-- Tìm kiếm -->
-        <div style="margin-top: 20px;">
-            <input type="text" id="search" placeholder="Tìm kiếm môn học">
-        </div>
+        <input type="text" id="search" placeholder="Tìm kiếm môn học">
 
-        <!-- Bảng danh sách kết quả -->
+        <!-- Danh sách kết quả -->
         <h2>Danh sách kết quả học tập</h2>
         <table id="result-table">
             <thead>
@@ -67,44 +82,54 @@
                     <th>Điểm hệ 10</th>
                     <th>Điểm hệ 4</th>
                     <th>Điểm chữ</th>
-                    <th>Kỳ học</th> <!-- Thêm cột kỳ học -->
+                    <th>Kỳ học</th>
                     <th>Hành động</th>
                 </tr>
             </thead>
             <tbody id="result-body"></tbody>
         </table>
 
-        <!-- Hiển thị GPA -->
+        <!-- GPA -->
         <div id="gpa-display"></div>
 
         <!-- Mục tiêu GPA -->
-        <div style="margin-top: 20px;">
-            <h3>Tính điểm cần đạt để đạt mục tiêu GPA</h3>
-            <label>Mục tiêu GPA (hệ 4): </label><input type="number" id="target-gpa" step="0.1" min="0" max="4">
-            <label>Số môn còn lại: </label><input type="number" id="remaining-subjects" min="1" step="1">
-            <button id="calculate-target">Tính</button>
-            <div id="target-result"></div>
-        </div>
+        <h3>Tính điểm cần đạt để đạt mục tiêu GPA</h3>
+        <label>Mục tiêu GPA (hệ 4): </label>
+        <input type="number" id="target-gpa" step="0.1" min="0" max="4">
+        <label>Số môn còn lại: </label>
+        <input type="number" id="remaining-subjects" min="1" step="1">
+        <button id="calculate-target">Tính</button>
+        <div id="target-result"></div>
 
-        <!-- Gợi ý cải thiện -->
-        <div style="margin-top: 20px;">
-            <h3>Gợi ý cải thiện GPA</h3>
-            <button id="suggest-improvement">Xem gợi ý</button>
-            <div id="suggestion-display"></div>
-        </div>
+        <!-- Gợi ý cải thiện GPA -->
+        <h3>Gợi ý cải thiện GPA</h3>
+        <button id="suggest-improvement">Xem gợi ý</button>
+        <div id="suggestion-display"></div>
 
         <!-- Biểu đồ -->
         <h2>Thống kê điểm</h2>
         <canvas id="gradeChart" style="max-height: 300px;"></canvas>
 
         <!-- Nút chức năng -->
-        <div style="margin-top: 20px;">
+        <div class="button-group">
             <button id="export-csv">Xuất CSV</button>
             <button id="export-pdf">Xuất PDF</button>
             <button id="toggle-dark-mode">Chuyển chế độ tối</button>
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2025 Web Tính Điểm Học Tập An Cris. Mọi quyền được bảo lưu.</p>
+            <p>Liên hệ: <a href="mailto:vvann276@gmail.com">vvann276@gmail.com</a></p>
+            <p>Số điện thoại: 0562400628</p>
+            <a href="#" class="website-link">AnCris.com</a>
+            <p><a href="#">Về chúng tôi</a> | <a href="#">Chính sách bảo mật</a></p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>

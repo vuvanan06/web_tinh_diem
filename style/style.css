@@ -1,24 +1,29 @@
+/* Thiết lập mặc định */
 body {
+    background: #45a049;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 20px;
-    background-color: #f4f4f4;
     transition: background-color 0.3s, color 0.3s;
 }
 
-.container {
+/* Container chung */
+.container, .footer-container {
     max-width: 1200px;
     margin: 0 auto;
-    background: white;
+    background: rgb(255, 173, 173);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
 }
 
+/* Tiêu đề */
 h1, h2, h3 {
     text-align: center;
 }
 
+/* Bảng */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -35,6 +40,7 @@ th {
     background-color: #f2f2f2;
 }
 
+/* Input và Select */
 input[type="number"], input[type="text"], select {
     width: 80px;
     padding: 4px;
@@ -42,6 +48,7 @@ input[type="number"], input[type="text"], select {
     border-radius: 4px;
 }
 
+/* Nút bấm */
 button {
     padding: 5px 10px;
     border: none;
@@ -49,12 +56,14 @@ button {
     cursor: pointer;
     background-color: #4CAF50;
     color: white;
+    transition: background-color 0.2s;
 }
 
 button:hover {
     background-color: #45a049;
 }
 
+/* Nút xóa và sửa */
 button.delete {
     background-color: #f44336;
 }
@@ -73,48 +82,87 @@ button.edit:hover {
 
 /* Dark Mode */
 body.dark-mode {
-    background-color: #333;
-    color: #fff;
+    background-color: #222;
+    color: #f4f4f4;
 }
 
-body.dark-mode .container {
-    background-color: #444;
+body.dark-mode .container, 
+body.dark-mode .footer-container {
+    background-color: #333;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Dark Mode - Bảng */
+body.dark-mode table {
+    background-color: #444;
+    color: #fff;
+    border-color: #777;
 }
 
 body.dark-mode th {
     background-color: #555;
 }
 
-body.dark-mode input, body.dark-mode button, body.dark-mode select {
+body.dark-mode td {
+    background-color: #444;
+}
+
+/* Dark Mode - Input, Select, Button */
+body.dark-mode input, 
+body.dark-mode select, 
+body.dark-mode button {
     background-color: #555;
-    color: #fff;
+    color: white;
     border: 1px solid #777;
 }
 
-body.dark-mode table {
-    border-color: #777;
+/* Dark Mode - Nút bấm */
+body.dark-mode button {
+    background-color: #666;
 }
 
-.welcome-message {
+body.dark-mode button:hover {
+    background-color: #888;
+}
+
+/* Header */
+header {
+    color: rgb(0, 0, 0);
+    padding: 15px 0;
     text-align: center;
-    font-size: 20px;
+}
+
+/* Navigation */
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
     font-weight: bold;
-    color: #4CAF50;
-    margin-bottom: 20px;
 }
 
-#search, #target-gpa, #remaining-subjects {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+/* Footer */
+footer {
+    padding: 15px 0;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    margin-top: 20px;
 }
 
-#suggestion-display {
-    margin-top: 10px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border-radius: 4px;
+/* Footer - Dark Mode */
+.footer-container a {
+    color: #000000;
+    text-decoration: none;
+}
+
+.footer-container a:hover {
+    text-decoration: underline;
 }
