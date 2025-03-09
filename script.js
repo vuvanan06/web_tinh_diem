@@ -9,12 +9,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.getElementById("search").addEventListener("input", searchSubjects);
     document.getElementById("semester-select").addEventListener("change", updateSemester);
-    document.getElementById("view-all-semesters").addEventListener("change", updateSemester); // Thêm sự kiện cho checkbox
+    document.getElementById("view-all-semesters").addEventListener("change", updateSemester);
     document.getElementById("calculate-target").addEventListener("click", calculateTargetGPA);
     document.getElementById("suggest-improvement").addEventListener("click", suggestImprovement);
+    document.getElementById("import-csv").addEventListener("change", importFromCSV);
+    document.getElementById("import-csv-btn").addEventListener("click", () => document.getElementById("import-csv").click());
+    document.getElementById("trend-chart").addEventListener("click", drawGPATrendChart);
+    document.getElementById("set-reminder").addEventListener("click", setGPAReminder);
+    document.getElementById("check-graduation").addEventListener("click", checkGraduation);
     drawChart();
     checkEmptyInputs();
 });
+
+function showLoading() {
+    document.getElementById("loading").style.display = "block";
+}
+
+function hideLoading() {
+    document.getElementById("loading").style.display = "none";
+}
 
 function addSubjectRow() {
     let table = document.getElementById("subjects-table");
@@ -135,7 +148,7 @@ function addToResults(subject, c, b, a, credits, score10, score4, grade, semeste
         <td>${score10}</td>
         <td>${score4}</td>
         <td>${grade}</td>
-        <td>${semester}</td> <!-- Hiển thị kỳ học -->
+        <td>${semester}</td>
         <td>
             <button class="edit">Sửa</button>
             <button class="delete">Xóa</button>
@@ -168,7 +181,7 @@ function editSubject(row) {
         score10: cells[5].textContent,
         score4: cells[6].textContent,
         grade: cells[7].textContent,
-        semester: cells[8].textContent // Lưu kỳ học
+        semester: cells[8].textContent
     };
 
     cells[0].innerHTML = `<input type="text" value="${originalData.subject}" class="edit-subject">`;
@@ -176,7 +189,7 @@ function editSubject(row) {
     cells[2].innerHTML = `<input type="number" min="0" max="10" step="0.1" value="${originalData.b}" class="edit-score-b">`;
     cells[3].innerHTML = `<input type="number" min="0" max="10" step="0.1" value="${originalData.a}" class="edit-score-a">`;
     cells[4].innerHTML = `<input type="number" min="1" max="10" step="1" value="${originalData.credits}" class="edit-credits">`;
-    cells[9].innerHTML = `<button class="save-edit">Lưu</button> <button class="cancel-edit">Hủy</button>`; // Điều chỉnh vị trí nút
+    cells[9].innerHTML = `<button class="save-edit">Lưu</button> <button class="cancel-edit">Hủy</button>`;
 
     row.querySelector(".save-edit").addEventListener("click", () => {
         let subject = row.querySelector(".edit-subject").value.trim();
@@ -210,7 +223,7 @@ function editSubject(row) {
         cells[5].textContent = score10;
         cells[6].textContent = score4;
         cells[7].textContent = grade;
-        cells[8].textContent = originalData.semester; // Giữ nguyên kỳ học
+        cells[8].textContent = originalData.semester;
         cells[9].innerHTML = `<button class="edit">Sửa</button> <button class="delete">Xóa</button>`;
 
         row.classList.remove("editing");
@@ -310,29 +323,37 @@ function updateSemester() {
 }
 
 function exportToCSV() {
-    let resultRows = document.querySelectorAll("#result-body tr");
-    let csvContent = "Môn học,Điểm C,Điểm B,Điểm A,Tín chỉ,Điểm hệ 10,Điểm hệ 4,Điểm chữ,Kỳ học\n";
-    resultRows.forEach(row => {
-        let rowData = [];
-        for (let i = 0; i < 9; i++) { // Bao gồm cột kỳ học
-            rowData.push(row.cells[i].textContent);
-        }
-        csvContent += rowData.join(",") + "\n";
-    });
+    showLoading();
+    setTimeout(() => {
+        let resultRows = document.querySelectorAll("#result-body tr");
+        let csvContent = "Môn học,Điểm C,Điểm B,Điểm A,Tín chỉ,Điểm hệ 10,Điểm hệ 4,Điểm chữ,Kỳ học\n";
+        resultRows.forEach(row => {
+            let rowData = [];
+            for (let i = 0; i < 9; i++) {
+                rowData.push(row.cells[i].textContent);
+            }
+            csvContent += rowData.join(",") + "\n";
+        });
 
-    let blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    let link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "KetQuaHocTap.csv";
-    link.click();
+        let blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "KetQuaHocTap.csv";
+        link.click();
+        hideLoading();
+    }, 500);
 }
 
 function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.text("Kết Quả Học Tập", 10, 10);
-    doc.autoTable({ html: "#result-table" });
-    doc.save("KetQuaHocTap.pdf");
+    showLoading();
+    setTimeout(() => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("Kết Quả Học Tập", 10, 10);
+        doc.autoTable({ html: "#result-table" });
+        doc.save("KetQuaHocTap.pdf");
+        hideLoading();
+    }, 500);
 }
 
 function searchSubjects() {
@@ -379,38 +400,36 @@ function drawChart() {
     });
 }
 
-// function calculateTargetGPA() {
-//     let targetGPA = parseFloat(document.getElementById("target-gpa").value);
-//     let remainingSubjects = parseInt(document.getElementById("remaining-subjects").value);
-//     let resultRows = document.querySelectorAll("#result-body tr");
-//     let viewAll = document.getElementById("view-all-semesters").checked;
-//     let semester = document.getElementById("semester-select").value;
-//     let totalWeightedScore4 = 0;
-//     let totalCredits = 0;
+function drawGPATrendChart() {
+    let semesters = ["Ky1", "Ky2", "He"];
+    let gpaData = semesters.map(sem => {
+        let rows = Array.from(document.querySelectorAll("#result-body tr")).filter(row => row.dataset.semester === sem);
+        let totalWeightedScore4 = 0, totalCredits = 0;
+        rows.forEach(row => {
+            totalWeightedScore4 += parseFloat(row.cells[6].textContent) * parseInt(row.cells[4].textContent);
+            totalCredits += parseInt(row.cells[4].textContent);
+        });
+        return totalCredits > 0 ? (totalWeightedScore4 / totalCredits).toFixed(2) : 0;
+    });
 
-//     resultRows.forEach(row => {
-//         if (viewAll || row.dataset.semester === semester) {
-//             let score4 = parseFloat(row.cells[6].textContent);
-//             let credits = parseInt(row.cells[4].textContent);
-//             totalWeightedScore4 += score4 * credits;
-//             totalCredits += credits;
-//         }
-//     });
+    let ctx = document.getElementById("gradeChart").getContext("2d");
+    if (window.myChart) window.myChart.destroy();
+    window.myChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: semesters,
+            datasets: [{
+                label: "GPA qua các kỳ",
+                data: gpaData,
+                fill: false,
+                borderColor: "rgba(75, 192, 192, 1)",
+                tension: 0.1
+            }]
+        },
+        options: { scales: { y: { beginAtZero: true, max: 4 } } }
+    });
+}
 
-//     if (isNaN(targetGPA) || isNaN(remainingSubjects) || targetGPA < 0 || targetGPA > 4 || remainingSubjects < 1) {
-//         document.getElementById("target-result").innerHTML = "Vui lòng nhập mục tiêu GPA (0-4) và số môn còn lại hợp lệ!";
-//         return;
-//     }
-
-//     let totalCreditsWithRemaining = totalCredits + remainingSubjects;
-//     let requiredTotalScore = targetGPA * totalCreditsWithRemaining;
-//     let requiredRemainingScore = requiredTotalScore - totalWeightedScore4;
-//     let avgScorePerSubject = (requiredRemainingScore / remainingSubjects).toFixed(2);
-
-//     document.getElementById("target-result").innerHTML = `
-//         Để đạt GPA ${targetGPA}, bạn cần đạt trung bình ${avgScorePerSubject} (hệ 4) cho ${remainingSubjects} môn còn lại.
-//     `;
-// }
 function calculateTargetGPA() {
     let targetGPA = parseFloat(document.getElementById("target-gpa").value);
     let remainingSubjects = parseInt(document.getElementById("remaining-subjects").value);
@@ -420,10 +439,8 @@ function calculateTargetGPA() {
     let totalWeightedScore4 = 0;
     let totalCredits = 0;
 
-    // Kiểm tra đầu vào hợp lệ
     if (isNaN(targetGPA) || isNaN(remainingSubjects) || targetGPA < 0 || targetGPA > 4 || remainingSubjects < 1) {
-        document.getElementById("target-result").innerHTML = 
-            "Vui lòng nhập mục tiêu GPA (0-4) và số môn còn lại hợp lệ!";
+        document.getElementById("target-result").innerHTML = "Vui lòng nhập mục tiêu GPA (0-4) và số môn còn lại hợp lệ!";
         return;
     }
 
@@ -443,7 +460,6 @@ function calculateTargetGPA() {
     let requiredRemainingScore = requiredTotalScore - totalWeightedScore4;
     let avgScorePerSubject = (requiredRemainingScore / remainingSubjects).toFixed(2);
 
-    // Cảnh báo nếu mục tiêu không thể đạt được
     if (avgScorePerSubject > 4.0) {
         document.getElementById("target-result").innerHTML = `
             Mục tiêu GPA ${targetGPA} không khả thi! Bạn cần đạt trung bình ${avgScorePerSubject} (hệ 4),
@@ -460,7 +476,6 @@ function calculateTargetGPA() {
         `;
     }
 }
-
 
 function suggestImprovement() {
     let resultRows = document.querySelectorAll("#result-body tr");
@@ -495,10 +510,87 @@ function suggestImprovement() {
     `;
 }
 
+function checkEmptyInputs() {
+    let subjectsTable = document.getElementById("subjects-table");
+    let resultTable = document.getElementById("result-body");
+    let semester = document.getElementById("semester-select").value;
+    let viewAll = document.getElementById("view-all-semesters").checked;
 
-// function checkEmptyInputs() {
-//     let subjectsTable = document.getElementById("subjects-table");
-//     if (subjectsTable.rows.length === 0) {
-//         alert("Bạn chưa nhập môn học nào trong kỳ hiện tại!");
-//     }
-// }
+    if (subjectsTable.rows.length === 0 && resultTable.rows.length === 0) {
+        alert("Bạn chưa nhập bất kỳ môn học nào!");
+    } else if (!viewAll && Array.from(resultTable.rows).every(row => row.dataset.semester !== semester)) {
+        alert(`Không có dữ liệu cho kỳ ${semester}. Vui lòng nhập điểm hoặc chọn kỳ khác!`);
+    }
+}
+
+function importFromCSV(event) {
+    showLoading();
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const rows = text.split('\n').slice(1);
+        rows.forEach(row => {
+            const [subject, c, b, a, credits, , , , semester] = row.split(',');
+            if (subject && c && b && a && credits && semester) {
+                addToResults(subject, parseFloat(c), parseFloat(b), parseFloat(a), parseInt(credits),
+                            (parseFloat(a) * 0.6 + parseFloat(b) * 0.3 + parseFloat(c) * 0.1).toFixed(2),
+                            getScore4((parseFloat(a) * 0.6 + parseFloat(b) * 0.3 + parseFloat(c) * 0.1)),
+                            getGrade((parseFloat(a) * 0.6 + parseFloat(b) * 0.3 + parseFloat(c) * 0.1)), semester.trim());
+            }
+        });
+        saveToLocalStorage();
+        calculateGPA();
+        drawChart();
+        hideLoading();
+    };
+    reader.readAsText(file);
+}
+
+function setGPAReminder() {
+    let targetGPA = parseFloat(document.getElementById("target-gpa").value);
+    if (isNaN(targetGPA) || targetGPA < 0 || targetGPA > 4) {
+        alert("Vui lòng nhập mục tiêu GPA hợp lệ (0-4)!");
+        return;
+    }
+    if (Notification.permission === "granted") {
+        setInterval(() => {
+            calculateGPA();
+            let currentGPA = parseFloat(document.getElementById("gpa-display").textContent.match(/Hệ 4: (\d\.\d+)/)[1]);
+            if (currentGPA < targetGPA) {
+                new Notification("Cảnh báo GPA", { body: `GPA hiện tại (${currentGPA}) thấp hơn mục tiêu (${targetGPA})!` });
+            }
+        }, 60000);
+    } else {
+        Notification.requestPermission().then(perm => {
+            if (perm === "granted") setGPAReminder();
+        });
+    }
+}
+
+function checkGraduation() {
+    let requiredCredits = parseInt(document.getElementById("required-credits").value);
+    let minGPA = parseFloat(document.getElementById("min-gpa").value);
+    let resultRows = document.querySelectorAll("#result-body tr");
+    let totalCredits = 0;
+    let totalWeightedScore4 = 0;
+
+    if (isNaN(requiredCredits) || isNaN(minGPA) || requiredCredits < 1 || minGPA < 0 || minGPA > 4) {
+        document.getElementById("graduation-result").innerHTML = "Vui lòng nhập yêu cầu hợp lệ!";
+        return;
+    }
+
+    resultRows.forEach(row => {
+        let score4 = parseFloat(row.cells[6].textContent);
+        let credits = parseInt(row.cells[4].textContent);
+        totalWeightedScore4 += score4 * credits;
+        totalCredits += credits;
+    });
+
+    let currentGPA = totalCredits > 0 ? (totalWeightedScore4 / totalCredits).toFixed(2) : 0;
+    let result = totalCredits >= requiredCredits && currentGPA >= minGPA
+        ? "Chúc mừng! Bạn đã đủ điều kiện tốt nghiệp."
+        : `Bạn chưa đủ điều kiện tốt nghiệp. Tổng tín chỉ: ${totalCredits}/${requiredCredits}, GPA: ${currentGPA}/${minGPA}.`;
+
+    document.getElementById("graduation-result").innerHTML = result;
+}
