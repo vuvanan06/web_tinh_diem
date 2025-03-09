@@ -22,7 +22,8 @@
     
     <!-- Header -->
     <header>
-        <div class="container">
+
+        <div class="container" style="background: palegreen;">
             <h1>HỆ THỐNG TÍNH ĐIỂM HỌC TẬP AN'S </h1>
             <p class="welcome-message">CHÀO MỪNG BẠN ĐÃ ĐẾN VỚI HỆ THỐNG TÍNH ĐIỂM CỦA CHÚNG TÔI!</p>
             <nav>
@@ -37,10 +38,11 @@
             </nav>
         </div>
     </header>
+    
 
     <div class="container">
         <!-- Chọn kỳ học -->
-        <div class="filter-section">
+        <!-- <div class="filter-section">
             <label for="semester-select">Chọn kỳ học: </label>
             <select id="semester-select">
                 <option value="Ky1">Kỳ 1</option>
@@ -49,7 +51,7 @@
             </select>
             <label>Xem tất cả kỳ: </label>
             <input type="checkbox" id="view-all-semesters">
-        </div>
+        </div> -->
 
         <!-- Nhập điểm -->
         <h2>Nhập điểm môn học</h2>
@@ -73,7 +75,19 @@
 
         <!-- Tìm kiếm -->
         <input type="text" id="search" placeholder="Tìm kiếm môn học">
-
+        <br> 
+        <div><br></div>
+        <!-- Chọn kỳ học -->
+        <div class="filter-section">
+            <label for="semester-select">Chọn kỳ học: </label>
+            <select id="semester-select">
+                <option value="Ky1">Kỳ 1</option>
+                <option value="Ky2">Kỳ 2</option>
+                <option value="He">Hè</option>
+            </select>
+            <label>Xem tất cả kỳ: </label>
+            <input type="checkbox" id="view-all-semesters">
+        </div>
         <!-- Danh sách kết quả -->
         <h2>Danh sách kết quả học tập</h2>
         <table id="result-table">
@@ -141,7 +155,7 @@
 
     <!-- Footer -->
     <footer>
-        <div class="footer-container">
+        <div class="footer-container" style="background: palegreen;">
             <p>© 2025 Web Tính Điểm Học Tập An Cris. Mọi quyền được bảo lưu.</p>
             <p>Liên hệ: <a href="mailto:vvann276@gmail.com">vvann276@gmail.com</a></p>
             <p>Số điện thoại: 0562400628</p>
