@@ -57,13 +57,13 @@ function addSubjectRow() {
     row.querySelector(".save").addEventListener("click", () => saveSubject(row));
 }
 
-function validateInput(input) {
-    let value = parseFloat(input.value);
-    if (isNaN(value) || value < 0 || value > 10) {
-        alert("Điểm phải trong khoảng 0 - 10!");
-        input.value = 0;
-    }
-}
+// function validateInput(input) {
+//     let value = parseFloat(input.value);
+//     if (isNaN(value) || value < 0 || value > 10) {
+//         alert("Điểm phải trong khoảng 0 - 10!");
+//         input.value = 0;
+//     }
+// }
 
 function calculateScores(row) {
     let c = parseFloat(row.querySelector(".score-c").value) || 0;
