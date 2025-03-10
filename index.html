@@ -5,166 +5,185 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Web tính điểm học tập, giúp bạn quản lý và tính toán điểm GPA dễ dàng.">
     <title>HỆ THỐNG TÍNH ĐIỂM HỌC TẬP</title>
-    
-    <!-- CSS -->
     <link rel="stylesheet" href="style/style.css">
-
-    <!-- Thư viện JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-   
-    
 </head>
 <body>
-    
-    <!-- Header -->
     <header>
-
-        <div class="container" style="background: palegreen;">
-            <h1>HỆ THỐNG TÍNH ĐIỂM HỌC TẬP AN'S </h1>
-            <p class="welcome-message">CHÀO MỪNG BẠN ĐÃ ĐẾN VỚI HỆ THỐNG TÍNH ĐIỂM CỦA CHÚNG TÔI!</p>
+        <div class="container">
+            <h1>HỆ THỐNG TÍNH ĐIỂM HỌC TẬP AN'S</h1>
+            <p class="welcome-message">CHÀO MỪNG BẠN ĐẾN VỚI HỆ THỐNG TÍNH ĐIỂM!</p>
             <nav>
                 <ul>
-                    <li><a href="#subjects-table"><i class="fas fa-edit"></i> Nhập điểm</a></li>
-                    <li><a href="#result-table"><i class="fas fa-list"></i> Kết quả</a></li>
-                    <li><a href="#gpa-display"><i class="fas fa-graduation-cap"></i> GPA</a></li>
-                    <li><a href="#gradeChart"><i class="fas fa-chart-bar"></i> Thống kê</a></li>
-                    <li><a href="#target-gpa"><i class="fas fa-bullseye"></i> Mục tiêu GPA</a></li>
+                    <li><a href="#input-section" class="tooltip"><i class="fas fa-edit"></i> Nhập điểm<span class="tooltiptext">Nhập điểm cho các môn học để tính GPA</span></a></li>
+                    <li><a href="#result-section" class="tooltip"><i class="fas fa-list"></i> Kết quả<span class="tooltiptext">Xem danh sách môn học và điểm</span></a></li>
+                    <li><a href="#gpa-section" class="tooltip"><i class="fas fa-graduation-cap"></i> GPA<span class="tooltiptext">Xem GPA hiện tại</span></a></li>
+                    <li><a href="#stats-section" class="tooltip"><i class="fas fa-chart-bar"></i> Thống kê<span class="tooltiptext">Xem biểu đồ điểm</span></a></li>
+                    <li><a href="#target-section" class="tooltip"><i class="fas fa-bullseye"></i> Mục tiêu<span class="tooltiptext">Đặt mục tiêu và kiểm tra GPA</span></a></li>
                 </ul>
-                
             </nav>
         </div>
     </header>
-    
 
     <div class="container">
-        <!-- Chọn kỳ học -->
-        <!-- <div class="filter-section">
-            <label for="semester-select">Chọn kỳ học: </label>
-            <select id="semester-select">
-                <option value="Ky1">Kỳ 1</option>
-                <option value="Ky2">Kỳ 2</option>
-                <option value="He">Hè</option>
-            </select>
-            <label>Xem tất cả kỳ: </label>
-            <input type="checkbox" id="view-all-semesters">
-        </div> -->
-
-        <!-- Nhập điểm -->
-        <h2>Nhập điểm môn học</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Môn học</th>
-                    <th>Điểm C</th>
-                    <th>Điểm B</th>
-                    <th>Điểm A</th>
-                    <th>Tín chỉ</th>
-                    <th>Điểm Hệ 10</th>
-                    <th>Điểm Hệ 4</th>
-                    <th>Điểm Chữ</th>
-                    <th>Hành động</th>
-                </tr>
-            </thead>
-            <tbody id="subjects-table"></tbody>
-        </table>
-        <button id="add-subject">Thêm môn học</button>
-
-        <!-- Tìm kiếm -->
-        <input type="text" id="search" placeholder="Tìm kiếm môn học">
-        <br> 
-        <div><br></div>
-        <!-- Chọn kỳ học -->
         <div class="filter-section">
-            <label for="semester-select">Chọn kỳ học: </label>
+            <label for="semester-select">Chọn kỳ học:</label>
             <select id="semester-select">
                 <option value="Ky1">Kỳ 1</option>
                 <option value="Ky2">Kỳ 2</option>
                 <option value="He">Hè</option>
             </select>
-            <label>Xem tất cả kỳ: </label>
-            <input type="checkbox" id="view-all-semesters">
+            <label><input type="checkbox" id="view-all-semesters"> Xem tất cả kỳ</label>
         </div>
-        <!-- Danh sách kết quả -->
-        <h2>Danh sách kết quả học tập</h2>
-        <table id="result-table">
-            <thead>
-                <tr>
-                    <th>Môn học</th>
-                    <th>Điểm C</th>
-                    <th>Điểm B</th>
-                    <th>Điểm A</th>
-                    <th>Tín chỉ</th>
-                    <th>Điểm hệ 10</th>
-                    <th>Điểm hệ 4</th>
-                    <th>Điểm chữ</th>
-                    <th>Kỳ học</th>
-                    <th>Hành động</th>
-                </tr>
-            </thead>
-            <tbody id="result-body"></tbody>
-        </table>
 
-        <!-- GPA -->
-        <div id="gpa-display"></div>
+        <section id="input-section" class="input-section">
+            <h2>Nhập điểm môn học</h2>
+            <div class="weight-config">
+                <h3>Cấu hình tỉ trọng điểm</h3>
+                <label>Điểm C (%):</label>
+                <input type="number" id="weight-c" min="0" max="100" step="1" value="10">
+                <label>Điểm B (%):</label>
+                <input type="number" id="weight-b" min="0" max="100" step="1" value="30">
+                <label>Điểm A (%):</label>
+                <input type="number" id="weight-a" min="0" max="100" step="1" value="60">
+                <button id="save-weights" class="tooltip">Lưu cấu hình<span class="tooltiptext">Lưu tỉ trọng điểm tùy chỉnh</span></button>
+                <div id="weight-error" style="color: red;"></div>
+            </div>
+            <table class="grade-table">
+                <thead>
+                    <tr>
+                        <th>Môn học</th>
+                        <th>Điểm C</th>
+                        <th>Điểm B</th>
+                        <th>Điểm A</th>
+                        <th>Tín chỉ</th>
+                        <th>Điểm Hệ 10</th>
+                        <th>Điểm Hệ 4</th>
+                        <th>Điểm Chữ</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="subjects-table"></tbody>
+            </table>
+            <button id="add-subject" class="tooltip">Thêm môn học<span class="tooltiptext">Thêm môn học mới</span></button>
+            <button id="speech-input" class="tooltip">Nhập bằng giọng nói<span class="tooltiptext">Nhập điểm bằng cách nói</span></button>
+        </section>
 
-        <!-- Mục tiêu GPA -->
-        <h3>Tính điểm cần đạt để đạt mục tiêu GPA</h3>
-        <label>Mục tiêu GPA (hệ 4): </label>
-        <input type="number" id="target-gpa" step="0.1" min="0" max="4">
-        <label>Số môn còn lại: </label>
-        <input type="number" id="remaining-subjects" min="1" step="1">
-        <button id="calculate-target">Tính</button>
-        <div id="target-result"></div>
+        <input type="text" id="search" placeholder="Tìm kiếm môn học">
 
-        <!-- Gợi ý cải thiện GPA -->
-        <h3>Gợi ý cải thiện GPA</h3>
-        <button id="suggest-improvement">Xem gợi ý</button>
-        <div id="suggestion-display"></div>
+        <section id="result-section" class="result-section">
+            <h2>Danh sách kết quả học tập</h2>
+            <table class="grade-table" id="result-table">
+                <thead>
+                    <tr>
+                        <th>Môn học</th>
+                        <th>Điểm C</th>
+                        <th>Điểm B</th>
+                        <th>Điểm A</th>
+                        <th>Tín chỉ</th>
+                        <th>Điểm hệ 10</th>
+                        <th>Điểm hệ 4</th>
+                        <th>Điểm chữ</th>
+                        <th>Kỳ học</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="result-body"></tbody>
+            </table>
+        </section>
 
-        <!-- Kiểm tra điều kiện tốt nghiệp -->
-        <h3>Kiểm tra điều kiện tốt nghiệp</h3>
-        <label>Tổng tín chỉ yêu cầu: </label>
-        <input type="number" id="required-credits" min="1" step="1">
-        <label>GPA tối thiểu (hệ 4): </label>
-        <input type="number" id="min-gpa" step="0.1" min="0" max="4">
-        <button id="check-graduation">Kiểm tra</button>
-        <div id="graduation-result"></div>
+        <section id="gpa-section" class="gpa-section">
+            <div id="gpa-display"></div>
+            <button id="compare-gpa" class="tooltip">So sánh GPA các kỳ<span class="tooltiptext">Xem GPA qua các kỳ học</span></button>
+            <div id="gpa-comparison"></div>
+            <h3>So sánh với bạn bè</h3>
+            <div id="friend-comparison">
+                <label>GPA bạn (hệ 4):</label>
+                <input type="number" id="friend-gpa" step="0.1" min="0" max="4">
+                <button id="compare-friend" class="tooltip">So sánh<span class="tooltiptext">So sánh GPA với bạn bè</span></button>
+                <div id="friend-result"></div>
+            </div>
+        </section>
 
-        <!-- Biểu đồ -->
-        <h2>Thống kê điểm</h2>
-        <canvas id="gradeChart" style="max-height: 300px;"></canvas>
+        <section id="target-section" class="target-section">
+            <h3>Tính điểm cần đạt để đạt mục tiêu GPA</h3>
+            <label>Mục tiêu GPA (hệ 4):</label>
+            <input type="number" id="target-gpa" step="0.1" min="0" max="4">
+            <label>Số môn còn lại:</label>
+            <input type="number" id="remaining-subjects" min="1" step="1">
+            <button id="calculate-target" class="tooltip">Tính<span class="tooltiptext">Tính điểm cần đạt cho mục tiêu</span></button>
+            <div id="target-result"></div>
 
-        <!-- Nút chức năng -->
+            <h3>Gợi ý cải thiện GPA</h3>
+            <button id="suggest-improvement" class="tooltip">Xem gợi ý<span class="tooltiptext">Xem cách cải thiện GPA</span></button>
+            <div id="suggestion-display"></div>
+
+            <h3>Kiểm tra điều kiện tốt nghiệp</h3>
+            <label>Tổng tín chỉ yêu cầu:</label>
+            <input type="number" id="required-credits" min="1" step="1">
+            <label>GPA tối thiểu (hệ 4):</label>
+            <input type="number" id="min-gpa" step="0.1" min="0" max="4">
+            <button id="check-graduation" class="tooltip">Kiểm tra<span class="tooltiptext">Kiểm tra điều kiện tốt nghiệp</span></button>
+            <div id="graduation-result"></div>
+
+            <h3>Dự đoán GPA</h3>
+            <div id="forecast-section">
+                <label>Số môn học dự kiến:</label>
+                <input type="number" id="forecast-subjects" min="1" step="1">
+                <button id="add-forecast" class="tooltip">Thêm môn dự kiến<span class="tooltiptext">Thêm môn để dự đoán GPA</span></button>
+                <table id="forecast-table" class="grade-table">
+                    <thead>
+                        <tr>
+                            <th>Môn học</th>
+                            <th>Điểm dự kiến (Hệ 10)</th>
+                            <th>Tín chỉ</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="forecast-body"></tbody>
+                </table>
+                <button id="calculate-forecast" class="tooltip">Tính GPA dự kiến<span class="tooltiptext">Dự đoán GPA với điểm mới</span></button>
+                <div id="forecast-result"></div>
+            </div>
+        </section>
+
+        <section id="stats-section" class="stats-section">
+            <h2>Thống kê điểm</h2>
+            <canvas id="gradeChart" style="max-height: 300px;"></canvas>
+            <canvas id="pieChart" style="max-height: 300px;"></canvas>
+        </section>
+
         <div class="button-group">
             <input type="file" id="import-csv" accept=".csv" style="display:none;">
-            <button id="import-csv-btn">Nhập từ CSV</button>
-            <button id="export-csv">Xuất CSV</button>
-            <button id="export-pdf">Xuất PDF</button>
-            <button id="toggle-dark-mode">Chuyển chế độ tối</button>
-            <button id="trend-chart">Xem xu hướng GPA</button>
-            <button id="set-reminder">Đặt nhắc nhở GPA</button>
+            <button id="import-csv-btn" class="tooltip">Nhập từ CSV<span class="tooltiptext">Nhập dữ liệu từ file CSV</span></button>
+            <button id="export-csv" class="tooltip">Xuất CSV<span class="tooltiptext">Xuất kết quả thành CSV</span></button>
+            <button id="export-pdf" class="tooltip">Xuất PDF<span class="tooltiptext">Xuất kết quả thành PDF</span></button>
+            <button id="toggle-dark-mode" class="tooltip">Chuyển chế độ tối<span class="tooltiptext">Chuyển đổi chế độ sáng/tối</span></button>
+            <button id="trend-chart" class="tooltip">Xem xu hướng GPA<span class="tooltiptext">Xem biểu đồ GPA qua các kỳ</span></button>
+            <button id="set-reminder" class="tooltip">Đặt nhắc nhở GPA<span class="tooltiptext">Nhắc nhở nếu GPA dưới mục tiêu</span></button>
+            <button id="view-history" class="tooltip">Xem lịch sử thay đổi<span class="tooltiptext">Xem lịch sử chỉnh sửa điểm</span></button>
+            <button id="share-result" class="tooltip">Chia sẻ kết quả<span class="tooltiptext">Chia sẻ GPA lên mạng xã hội</span></button>
         </div>
 
-        <!-- Spinner loading -->
+        <div id="history-display" style="display: none;"></div>
         <div id="loading" class="spinner" style="display: none;">Đang xử lý...</div>
+        <div id="toast-container"></div>
     </div>
 
-    <!-- Footer -->
     <footer>
-        <div class="footer-container" style="background: palegreen;">
+        <div class="footer-container">
             <p>© 2025 Web Tính Điểm Học Tập An Cris. Mọi quyền được bảo lưu.</p>
-            <p>Liên hệ: <a href="mailto:vvann276@gmail.com">vvann276@gmail.com</a></p>
-            <p>Số điện thoại: 0562400628</p>
-            <a href="#" class="website-link">AnCris.com</a>
+            <p>Liên hệ: <a href="mailto:vvann276@gmail.com">vvann276@gmail.com</a> | SĐT: 0562400628</p>
             <p><a href="#">Về chúng tôi</a> | <a href="#">Chính sách bảo mật</a></p>
         </div>
     </footer>
 
-    <!-- JavaScript -->
-    <script src="script.js"></script>
+    <script src="js/calculator.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/speech.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

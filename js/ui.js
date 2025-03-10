@@ -1,5 +1,3 @@
-Vũ Văn An ~~~ AN Cris
-
 const elements = {
     subjectsTable: document.getElementById("subjects-table"),
     resultBody: document.getElementById("result-body"),
@@ -9,6 +7,8 @@ const elements = {
     gradeChart: document.getElementById("gradeChart"),
     pieChart: document.getElementById("pieChart"),
 };
+
+let history = JSON.parse(localStorage.getItem("gradeHistory")) || [];
 
 function debounce(func, delay) {
     let timeout;
@@ -46,6 +46,12 @@ function setupUIEvents() {
     document.getElementById("set-reminder").addEventListener("click", setGPAReminder);
     document.getElementById("check-graduation").addEventListener("click", checkGraduation);
     document.getElementById("compare-gpa").addEventListener("click", compareGPA);
+    document.getElementById("save-weights").addEventListener("click", saveWeights);
+    document.getElementById("add-forecast").addEventListener("click", addForecastRow);
+    document.getElementById("calculate-forecast").addEventListener("click", calculateForecastGPA);
+    document.getElementById("view-history").addEventListener("click", viewHistory);
+    document.getElementById("share-result").addEventListener("click", shareResult);
+    document.getElementById("compare-friend").addEventListener("click", compareWithFriend);
 }
 
 function addSubjectRow() {
@@ -109,6 +115,7 @@ function saveSubject(row) {
 
     const { score10, score4, grade } = calculateScores(c, b, a);
     addToResults(subject, c, b, a, credits, score10, score4, grade, semester);
+    logHistory("Thêm", { subject, c, b, a, credits, semester });
     row.remove();
     saveToLocalStorage();
     updateUI();
@@ -137,6 +144,7 @@ function addToResults(subject, c, b, a, credits, score10, score4, grade, semeste
 
 function attachRowEvents(row) {
     row.querySelector(".delete").addEventListener("click", () => {
+        logHistory("Xóa", { subject: row.cells[0].textContent, semester: row.dataset.semester });
         row.remove();
         saveToLocalStorage();
         updateUI();
@@ -188,6 +196,7 @@ function editSubject(row) {
         cells[8].textContent = originalData.semester;
         cells[9].innerHTML = `<button class="edit">Sửa</button> <button class="delete">Xóa</button>`;
 
+        logHistory("Sửa", { subject, old: originalData, new: { c, b, a, credits } });
         row.classList.remove("editing");
         attachRowEvents(row);
         saveToLocalStorage();
@@ -310,22 +319,49 @@ function calculateTargetGPA() {
     const viewAll = elements.viewAllSemesters.checked;
     const semester = elements.semesterSelect.value;
 
+    // Kiểm tra input hợp lệ
     if (isNaN(targetGPA) || isNaN(remainingSubjects) || targetGPA < 0 || targetGPA > 4 || remainingSubjects < 1) {
         document.getElementById("target-result").innerHTML = "Vui lòng nhập mục tiêu GPA (0-4) và số môn còn lại hợp lệ!";
         return;
     }
 
-    const { totalWeightedScore4, totalCredits } = calculateGPA(rows, viewAll, semester);
-    const totalCreditsWithRemaining = totalCredits + remainingSubjects;
-    const requiredTotalScore = targetGPA * totalCreditsWithRemaining;
-    const requiredRemainingScore = requiredTotalScore - totalWeightedScore4;
-    const avgScorePerSubject = (requiredRemainingScore / remainingSubjects).toFixed(2);
+    // Tính GPA hiện tại
+    const { gpa4, totalCredits } = calculateGPA(rows, viewAll, semester);
+    const currentWeightedScore4 = gpa4 * totalCredits;
 
-    document.getElementById("target-result").innerHTML = avgScorePerSubject > 4.0
-        ? `Mục tiêu GPA ${targetGPA} không khả thi! Cần trung bình ${avgScorePerSubject} (hệ 4), vượt mức tối đa 4.0.`
-        : avgScorePerSubject < 0
-        ? `Bạn đã đạt hoặc vượt mục tiêu!`
-        : `Để đạt GPA ${targetGPA}, bạn cần trung bình ${avgScorePerSubject} (hệ 4) cho ${remainingSubjects} môn còn lại.`;
+    // Nếu không có dữ liệu hiện tại
+    if (totalCredits === 0) {
+        document.getElementById("target-result").innerHTML = 
+            `Chưa có dữ liệu hiện tại. Để đạt GPA ${targetGPA}, bạn cần trung bình ${targetGPA.toFixed(2)} (hệ 4) cho ${remainingSubjects} môn còn lại.`;
+        return;
+    }
+
+    // Tính số tín chỉ còn lại
+    const remainingCredits = remainingSubjects;
+
+    // Tính điểm cần đạt
+    const totalCreditsWithRemaining = totalCredits + remainingCredits;
+    const requiredTotalScore4 = targetGPA * totalCreditsWithRemaining;
+    const requiredRemainingScore4 = requiredTotalScore4 - currentWeightedScore4;
+
+    // Kiểm tra xem có thể đạt được điểm cần thiết hay không
+    if (remainingCredits > 0) {
+        const avgScorePerSubject = (requiredRemainingScore4 / remainingCredits).toFixed(2);
+
+        // Xử lý kết quả
+        if (avgScorePerSubject > 4.0) {
+            document.getElementById("target-result").innerHTML = 
+                `Mục tiêu GPA ${targetGPA} không khả thi! Cần trung bình ${avgScorePerSubject} (hệ 4), vượt mức tối đa 4.0.`;
+        } else if (avgScorePerSubject < 0) {
+            document.getElementById("target-result").innerHTML = 
+                `GPA hiện tại (${gpa4}) đã vượt mục tiêu ${targetGPA}! Bạn không cần thêm điểm.`;
+        } else {
+            document.getElementById("target-result").innerHTML = 
+                `Để đạt GPA ${targetGPA}, bạn cần trung bình ${avgScorePerSubject} (hệ 4) cho ${remainingSubjects} môn còn lại.`;
+        }
+    } else {
+        document.getElementById("target-result").innerHTML = "Số môn còn lại không hợp lệ!";
+    }
 }
 
 function suggestImprovement() {
@@ -334,6 +370,7 @@ function suggestImprovement() {
     const semester = elements.semesterSelect.value;
     let suggestions = [], totalWeightedScore4 = 0, totalCredits = 0;
 
+    // Tính tổng điểm và tín chỉ hiện tại
     rows.forEach(row => {
         if (viewAll || row.dataset.semester === semester) {
             const subject = row.cells[0].textContent;
@@ -343,6 +380,7 @@ function suggestImprovement() {
             totalWeightedScore4 += score4 * credits;
             totalCredits += credits;
 
+            // Kiểm tra nếu điểm có thể tăng
             if (score10 < 10) {
                 const newScore10 = Math.min(score10 + 1, 10);
                 const newScore4 = getScore4(newScore10);
@@ -352,11 +390,20 @@ function suggestImprovement() {
         }
     });
 
-    const currentGPA = (totalWeightedScore4 / totalCredits).toFixed(2);
+    const currentGPA = totalCredits > 0 ? (totalWeightedScore4 / totalCredits).toFixed(2) : 0;
     document.getElementById("suggestion-display").innerHTML = `
         <p>GPA hiện tại: ${currentGPA}</p>
-        <ul>${suggestions.map(s => `<li>${s}</li>`).join("")}</ul>
+        <ul>${suggestions.length > 0 ? suggestions.map(s => `<li>${s}</li>`).join("") : "<li>Không có gợi ý cải thiện nào.</li>"}</ul>
     `;
+
+    // Hiển thị gợi ý cải thiện dựa trên mục tiêu GPA
+    const targetGPA = parseFloat(document.getElementById("target-gpa").value);
+    if (!isNaN(targetGPA) && totalCredits > 0) {
+        const requiredIncrease = (targetGPA * (totalCredits + suggestions.length) - totalWeightedScore4) / suggestions.length;
+        document.getElementById("suggestion-display").innerHTML += `
+            <p>Để đạt GPA mục tiêu ${targetGPA}, bạn cần tăng trung bình ${requiredIncrease.toFixed(2)} (hệ 4) cho các môn học.</p>
+        `;
+    }
 }
 
 function checkEmptyInputs() {
@@ -405,4 +452,116 @@ function updateUI() {
         : `<h3>GPA kỳ ${elements.semesterSelect.value}: Hệ 10: ${gpa10} | Hệ 4: ${gpa4}</h3>`;
     drawCharts();
     if (gpa4 < 2.0 && elements.resultBody.rows.length > 0) showToast(`GPA ${elements.viewAllSemesters.checked ? "tổng quát" : "kỳ " + elements.semesterSelect.value} dưới 2.0!`, "warning");
+}
+
+function saveWeights() {
+    const weightC = parseFloat(document.getElementById("weight-c").value) / 100;
+    const weightB = parseFloat(document.getElementById("weight-b").value) / 100;
+    const weightA = parseFloat(document.getElementById("weight-a").value) / 100;
+    const total = weightC + weightB + weightA;
+
+    if (total !== 1) {
+        document.getElementById("weight-error").textContent = "Tổng tỉ trọng phải bằng 100%!";
+        return;
+    }
+
+    scoreWeights = { c: weightC, b: weightB, a: weightA };
+    localStorage.setItem("scoreWeights", JSON.stringify(scoreWeights));
+    document.getElementById("weight-error").textContent = "";
+    showToast("Đã lưu cấu hình tỉ trọng!", "success");
+    
+    elements.resultBody.querySelectorAll("tr").forEach(row => {
+        const c = parseFloat(row.cells[1].textContent);
+        const b = parseFloat(row.cells[2].textContent);
+        const a = parseFloat(row.cells[3].textContent);
+        const { score10, score4, grade } = calculateScores(c, b, a);
+        row.cells[5].textContent = score10;
+        row.cells[6].textContent = score4;
+        row.cells[7].textContent = grade;
+    });
+    updateUI();
+}
+
+function initWeights() {
+    document.getElementById("weight-c").value = (scoreWeights.c * 100).toFixed(0);
+    document.getElementById("weight-b").value = (scoreWeights.b * 100).toFixed(0);
+    document.getElementById("weight-a").value = (scoreWeights.a * 100).toFixed(0);
+}
+
+function addForecastRow() {
+    const numSubjects = parseInt(document.getElementById("forecast-subjects").value) || 1;
+    const tbody = document.getElementById("forecast-body");
+    for (let i = 0; i < numSubjects; i++) {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td><input type="text" class="forecast-subject" placeholder="Tên môn" required></td>
+            <td><input type="number" min="0" max="10" step="0.1" class="forecast-score"></td>
+            <td><input type="number" min="1" max="10" step="1" class="forecast-credits" value="1"></td>
+            <td><button class="delete">Xóa</button></td>
+        `;
+        row.querySelector(".delete").addEventListener("click", () => row.remove());
+    }
+}
+
+function calculateForecastGPA() {
+    const currentRows = elements.resultBody.querySelectorAll("tr");
+    const forecastRows = document.getElementById("forecast-body").querySelectorAll("tr");
+    let totalWeightedScore4 = 0, totalCredits = 0;
+
+    currentRows.forEach(row => {
+        const score4 = parseFloat(row.cells[6].textContent);
+        const credits = parseInt(row.cells[4].textContent);
+        totalWeightedScore4 += score4 * credits;
+        totalCredits += credits;
+    });
+
+    forecastRows.forEach(row => {
+        const score10 = parseFloat(row.querySelector(".forecast-score").value) || 0;
+        const credits = parseInt(row.querySelector(".forecast-credits").value) || 1;
+        if (score10 < 0 || score10 > 10) return showToast("Điểm dự kiến phải từ 0-10!");
+        if (credits < 1 || credits > 10) return showToast("Tín chỉ phải từ 1-10!");
+        const score4 = getScore4(score10);
+        totalWeightedScore4 += score4 * credits;
+        totalCredits += credits;
+    });
+
+    const forecastGPA = totalCredits > 0 ? (totalWeightedScore4 / totalCredits).toFixed(2) : 0;
+    document.getElementById("forecast-result").innerHTML = `GPA dự kiến: ${forecastGPA} (hệ 4) với ${totalCredits} tín chỉ.`;
+}
+
+function logHistory(action, details) {
+    const timestamp = new Date().toLocaleString();
+    history.push({ timestamp, action, details });
+    localStorage.setItem("gradeHistory", JSON.stringify(history));
+}
+
+function viewHistory() {
+    const display = document.getElementById("history-display");
+    display.style.display = "block";
+    display.innerHTML = `<h3>Lịch sử thay đổi</h3><ul>${
+        history.map(h => `<li>${h.timestamp}: ${h.action} - ${JSON.stringify(h.details)}</li>`).join("")
+    }</ul>`;
+}
+
+function shareResult() {
+    const { gpa4, totalCredits } = calculateGPA(elements.resultBody.querySelectorAll("tr"), elements.viewAllSemesters.checked, elements.semesterSelect.value);
+    const text = `GPA của tôi: ${gpa4} (hệ 4) với ${totalCredits} tín chỉ! Tính bằng Hệ thống Tính Điểm Học Tập An's. #GPA #HocTap`;
+    const url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(text);
+    window.open(url, "_blank");
+    showToast("Đã mở cửa sổ chia sẻ!", "success");
+}
+
+function compareWithFriend() {
+    const friendGPA = parseFloat(document.getElementById("friend-gpa").value);
+    if (isNaN(friendGPA) || friendGPA < 0 || friendGPA > 4) {
+        showToast("Vui lòng nhập GPA hợp lệ (0-4)!");
+        return;
+    }
+
+    const { gpa4 } = calculateGPA(elements.resultBody.querySelectorAll("tr"), elements.viewAllSemesters.checked, elements.semesterSelect.value);
+    const diff = (gpa4 - friendGPA).toFixed(2);
+    document.getElementById("friend-result").innerHTML = `
+        GPA của bạn: ${gpa4} | GPA bạn bè: ${friendGPA}<br>
+        ${diff > 0 ? `Bạn cao hơn ${diff}` : diff < 0 ? `Bạn thấp hơn ${Math.abs(diff)}` : "Bằng nhau!"}
+    `;
 }

@@ -166,3 +166,71 @@ footer {
 .footer-container a:hover {
     text-decoration: underline;
 }
+
+/* Tooltip */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+body.dark-mode .tooltip .tooltiptext {
+    background-color: #777;
+}
+
+/* Weight Config */
+.weight-config {
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f9f9f9;
+}
+.weight-config label {
+    margin-right: 10px;
+}
+.weight-config input {
+    width: 60px;
+    margin-right: 10px;
+}
+body.dark-mode .weight-config {
+    background: #444;
+    border-color: #777;
+}
+
+/* Forecast Table */
+#forecast-table input[type="number"] {
+    width: 60px;
+}
+
+/* History Display */
+#history-display {
+    margin-top: 20px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+body.dark-mode #history-display {
+    background: #444;
+}
