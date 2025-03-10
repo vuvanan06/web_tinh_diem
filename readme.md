@@ -4,7 +4,7 @@
 
 - Hệ thống tính điểm học tập giúp sinh viên dễ dàng nhập, tính toán và theo dõi điểm số của mình. Ứng dụng hỗ trợ tính GPA, phân tích dữ liệu học tập, đặt mục tiêu GPA, và xuất dữ liệu ra các định dạng CSV/PDF.
 
-- Tính Năng Chính:
+2 Tính Năng Chính:
 
 + Nhập điểm: Người dùng có thể nhập điểm theo các thành phần C, B, A và tín chỉ.
 
@@ -24,7 +24,7 @@
 
 + Lịch sử thay đổi: Theo dõi lịch sử chỉnh sửa điểm.
 
-- Công Nghệ Sử Dụng
+3 Công Nghệ Sử Dụng
 
 + HTML, CSS, JavaScript: Xây dựng giao diện và chức năng.
 
@@ -34,7 +34,7 @@
 
 + LocalStorage: Lưu trữ dữ liệu trên trình duyệt.
 
-- Hướng Dẫn Sử Dụng
+4  Hướng Dẫn Sử Dụng
 
 + Nhập môn học: Điền tên môn, điểm C/B/A, tín chỉ và kỳ học.
 
@@ -46,15 +46,14 @@
 
 + Xuất dữ liệu: Xuất bảng điểm ra file CSV hoặc PDF.
 
-- Cài Đặt & Chạy Dự Án
+5  Cài Đặt & Chạy Dự Án
 
 + Clone repository:
 
 + git clone https://github.com/your-repo-url.git
 
 + Mở index.html trên trình duyệt.
-
-- Liên Hệ
+6 Liên Hệ
 
 + Tác giả: An Cris
 
